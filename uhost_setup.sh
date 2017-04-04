@@ -19,10 +19,8 @@ node-${NODE_VER} -v
 rm /tmp/node-v${NODE_VER}.tar.gz
 
 echo Installing Git wget
-apt-get install -y git
+apt-get install -y git wget 
 
-echo Installing Docker
-curl -fsSL https://get.docker.com | sh
 
 echo installing ansible
 apt-get install ansible
@@ -30,10 +28,8 @@ apt-get install ansible
 #installing robo mongo
 wget https://download.robomongo.org/1.0.0-rc1/linux/robomongo-1.0.0-rc1-linux-x86_64-496f5c2.tar.gz
 tar xf robomongo-1.0.0-rc1-linux-x86_64-496f5c2.tar.gz
-#sudo mv robomongo /usr/bin/robomongo
+mv robomongo-1.0.0-rc1-linux-x86_64-496f5c2 /usr/bin/robomongo
 
-#downloading rocket chat client
-wget https://github.com/RocketChat/Rocket.Chat.Electron/releases/download/2.6.0/rocketchat_2.6.0_amd64.deb
 
 echo Installing Visual Studio Code
 curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
@@ -44,11 +40,20 @@ apt-get update
 apt-get install -y code # or code-insiders
 
 
+#downloading rocket chat client
+echo installing rocket chat
+wget https://github.com/RocketChat/Rocket.Chat.Electron/releases/download/2.6.0/rocketchat_2.6.0_amd64.deb
+dpkg -i rocketchat_2.6.0_amd64.deb
+apt-get install -f
+
 echo Installing zoom plugin
 wget https://zoom.us/client/latest/zoom_amd64.deb
 
 dpkg -i zoom_amd64.deb
 apt-get install -f
+
+echo Installing Docker
+curl -fsSL https://get.docker.com | sh
 
 #cd .. && rm -rf install_tmp
 
