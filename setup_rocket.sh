@@ -1,9 +1,8 @@
 #!/bin/bash
 
-#downloading rocket chatclient
-echo installing rocket chat
-wget https://github.com/RocketChat/Rocket.Chat.Electron/releases/download/2.6.0/rocketchat_2.6.0_amd64.deb
-sudo dpkg -i rocketchat_2.6.0_amd64.deb
-sudo apt-get install code
+wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-key add -
+sudo apt-get update
+sudo apt-get install virtualbox-5.1
+sudo apt-get install dkms
 
 echo setup completed
