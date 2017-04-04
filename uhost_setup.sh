@@ -57,7 +57,7 @@ sudo apt-get install -f
 echo Installing Docker
 curl -fsSL https://get.docker.com | sh
 
-#cd .. && rm -rf install_tmp
+
 
 
 sudo curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
@@ -75,5 +75,6 @@ wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
 sudo dpkg -i google-chrome-stable_current_amd64.deb
 sudo apt-get install -f
 
-
+echo deleting install folder
+cd .. && rm -rf install_tmp
 
