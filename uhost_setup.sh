@@ -26,7 +26,11 @@ sudo apt-get install -y git wget ansible
 #installing robo mongo
 wget https://download.robomongo.org/1.0.0-rc1/linux/robomongo-1.0.0-rc1-linux-x86_64-496f5c2.tar.gz
 tar xf robomongo-1.0.0-rc1-linux-x86_64-496f5c2.tar.gz
-sudo mv robomongo-1.0.0-rc1-linux-x86_64-496f5c2 /usr/bin/robomongo
+sudo mv robomongo-1.0.0-rc1-linux-x86_64-496f5c2 /opt/robomongo-1.0.0
+sudo ln -s /opt/robomongo-1.0.0/bin/robomongo /usr/bin/robomongo
+
+
+
 
 
 echo Installing Visual Studio Code
