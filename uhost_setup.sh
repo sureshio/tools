@@ -78,3 +78,28 @@ sudo apt-get install -f
 echo deleting install folder
 cd .. && rm -rf install_tmp
 
+sudo mkdir /opt/devzone
+sudo chmod 777 /opt/devzone
+
+cat <<EOF >  /opt/devzone/ansible.cfg
+
+[defaults]
+# some basic default values...
+inventory      = /opt/devzone/ansible/hosts
+roles_path    = /opt/devzone/ansible/roles
+host_key_checking = False
+[privilege_escalation]
+#no defaults
+[paramiko_connection]
+#no default
+[ssh_connection]
+#no defaults
+[accelerate]
+#no defaults
+[selinux]
+#no defaults
+[colors]
+#no defaults
+EOF
+
+sudo mv /opt/devzone/ansible.cfg /etc/ansible/ansible.cfg
