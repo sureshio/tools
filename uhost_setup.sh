@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir install_tmp
+cd install_tmp
 apt-get -y update
 
 # Install Node.Js
@@ -47,5 +49,7 @@ wget https://zoom.us/client/latest/zoom_amd64.deb
 
 dpkg -i zoom_amd64.deb
 apt-get install -f
+
+#cd .. && rm -rf install_tmp
 
 
