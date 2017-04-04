@@ -4,5 +4,6 @@ wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo apt-
 sudo apt-get update
 sudo apt-get install virtualbox-5.1
 sudo apt-get install dkms
+sudo apt-get -f install
 
 echo setup completed
