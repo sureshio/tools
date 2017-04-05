@@ -102,4 +102,5 @@ host_key_checking = False
 #no defaults
 EOF
 
+sudo apt -f install 
 sudo mv /opt/devzone/ansible.cfg /etc/ansible/ansible.cfg
