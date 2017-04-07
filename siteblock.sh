@@ -1,6 +1,6 @@
 #!/bin/bash
 
-hosts=( "gmail.com" "mail.yahoo.com" "inbox.google.com" "drive.google.com" "dropbox.com")
+hosts=("gmail.com" "mail.yahoo.com" "inbox.google.com" "drive.google.com" "dropbox.com")
 
 if [ ! -f /etc/hosts.org ] ;
 then
@@ -9,8 +9,9 @@ else
   cp /etc/hosts.org /etc/hosts
 fi
 
+echo "# Blocked sites" >> /etc/hosts
 for i in "${hosts[@]}"
 do
-   echo "127.0.0.01 $i \r\n" >> /etc/hosts
+   echo "127.0.0.01 $i " >> /etc/hosts
 done
 
