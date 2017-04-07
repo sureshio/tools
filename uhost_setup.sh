@@ -51,7 +51,7 @@ sudo apt-get install -y code # or code-insiders
 echo "installing rocket chat" >> uhost_setup.log
 wget https://github.com/RocketChat/Rocket.Chat.Electron/releases/download/2.6.0/rocketchat_2.6.0_amd64.deb
 sudo dpkg -i rocketchat_2.6.0_amd64.deb
-sudo apt-get install -f
+sudo apt-get -f install 
 
 echo "Installing zoom plugin" >> uhost_setup.log
 wget https://zoom.us/client/latest/zoom_amd64.deb
@@ -109,3 +109,7 @@ EOF
 
 sudo apt -f install 
 sudo mv /opt/devzone/ansible.cfg /etc/ansible/ansible.cfg
+
+ansible -v
+docker --version
+docker-compose --version
