@@ -9,6 +9,7 @@ else
   cp /etc/hosts.org /etc/hosts
 fi
 
+echo " " >> /etc/hosts
 echo "# Blocked sites" >> /etc/hosts
 for i in "${hosts[@]}"
 do
