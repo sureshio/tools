@@ -1,0 +1,122 @@
+
+
+#!/bin/bash
+
+# folder to use to create current backup
+BACKUP_WORKING_DIR=/tmp
+
+# the folder that needs to be backup
+DATA_FOLDER=${DATA_FOLDER:-$PWD}
+
+while getopts d:w:k:s:g:n:b:p:t: option
+do
+        case $option in
+                d)
+		            DATA_FOLDER=${OPTARG};
+                    echo "DATA_FOLDER:$DATA_FOLDER"
+				    ;;
+	            w)
+               	    BACKUP_WORKING_DIR=${OPTARG};
+                    echo "BACKUP_WORKING_DIR:$BACKUP_WORKING_DIR"
+                	;;
+	            t)  BACKUP_NAME=${OPTARG} ;;
+ 	            n)
+               	    NOTIFY_WEBHOOK=${OPTARG};
+                    echo "NOTIFY_WEBHOOK:$NOTIFY_WEBHOOK"
+                	;;                 
+	            g)
+               	    GPG_SECRET=${OPTARG};
+                    echo "GPG_SECRET SET" 
+                	;;
+	            b)
+               	    S3_BUCKET=${OPTARG};
+                    echo "S3_BUCKET :$S3_BUCKET" 
+                	;;
+	            p)
+               	    S3_PATH=/${OPTARG};
+                    echo "S3_PATH :$S3_PATH" 
+                	;;
+	            k)
+               	    AWS_KEY=${OPTARG};
+                    echo "AWS_SECRET: $AWS_KEY" 
+                	;;
+	            s)
+               	    AWS_SECRET=${OPTARG};
+                    echo "AWS_SECRET SET" 
+                	;;
+                \?) echo "Unknown option: -$OPTARG" >&2; phelp; exit 1;;
+        		*) echo "Unimplimented option: -$OPTARG" >&2; phelp; exit 1;;
+        esac
+done
+
+DATA_FOLDER_NAME=`basename $DATA_FOLDER`
+
+function notify {
+
+    MSG="$1"
+
+    if [ ! -z "${NOTIFY_WEBHOOK}" ]; then
+        echo "Running Webhook ${NOTIFY_WEBHOOK}"
+        HOSTNAME=`hostname`
+        CURR_DATE=`date`
+        CHAT_MSG="{\"username\":\"dataops\",    \"text\": \"${MSG}\"}"
+        echo $CHAT_MSG
+        curl -d "$CHAT_MSG" -H "Content-Type: application/json" -X POST ${NOTIFY_WEBHOOK}
+    fi  
+}
+
+    BACKUP_NAME=${BACKUP_NAME:-$DATA_FOLDER_NAME}
+    # Prepare backup folder
+    BACKUP_FOLDER_PATH=${BACKUP_WORKING_DIR}/${BACKUP_NAME}
+    [ -d $BACKUP_FOLDER_PATH ] || mkdir -p $BACKUP_FOLDER_PATH
+    
+    echo BACKUP_FOLDER_PATH:$BACKUP_FOLDER_PATH
+
+    # Prepare Archile file location
+    CURR_FOLDER=`date +"%h-%d-%y_%H-%M-%S"`
+    ARCHIVE_FILE_NAME=$DATA_FOLDER_NAME-$CURR_FOLDER.tar.gz
+    ARCHIVE_FILE=${BACKUP_FOLDER_PATH}/${BACKUP_NAME}-${ARCHIVE_FILE_NAME}
+
+    echo "Archiving Folder:$DATA_FOLDER to File:$ARCHIVE_FILE"
+    tar -cpzf $ARCHIVE_FILE -C $DATA_FOLDER  .
+
+    ls -ltr $ARCHIVE_FILE
+    if [ ! -f "${ARCHIVE_FILE}" ]; then
+        echo "Archive file not created. possible error"
+        notify "Archive file not created. possible error"
+    elsels -ltr 
+       echo "Archive File Created: $ARCHIVE_FILE"
+    fi
+
+    #encrypt data file
+    if [ -f "${ARCHIVE_FILE}" ] &&  [ ! -z "${GPG_SECRET}" ]; then
+        echo encypting file with gpg
+        gpg --yes --batch --passphrase=$GPG_SECRET -c $ARCHIVE_FILE 
+        ARCHIVE_FILE=${ARCHIVE_FILE}.gpg
+        ARCHIVE_FILE_NAME=${ARCHIVE_FILE_NAME}.gpg
+        echo Encrypted File ${ARCHIVE_FILE}
+
+    fi
+
+
+
+   if [ -f "${ARCHIVE_FILE}" ] && [ ! -z "${S3_BUCKET}" ] && [ ! -z "${AWS_KEY}" ] && [ ! -z "${AWS_SECRET}" ]; then
+        TARGET_FILE=${TARGET_FILE:-$BACKUP_NAME/$ARCHIVE_FILE_NAME}
+        echo "Uploading File:${ARCHIVE_FILE} to S3 /${S3_BUCKET}/${TARGET_FILE}"
+        resource="/${S3_BUCKET}/${TARGET_FILE}"
+        contentType="application/x-compressed-tar"
+        dateValue=`date -R`
+        stringToSign="PUT\n\n${contentType}\n${dateValue}\n${resource}"
+        signature=`echo -en ${stringToSign} | openssl sha1 -hmac ${AWS_SECRET} -binary | base64`
+        echo signature:$signature
+        
+        curl -X PUT -T "${ARCHIVE_FILE}" \
+            -H "Host: ${S3_BUCKET}.s3.amazonaws.com" \
+            -H "Date: ${dateValue}" \
+            -H "Content-Type: ${contentType}" \
+            -H "Authorization: AWS ${AWS_KEY}:${signature}" \
+            https://${S3_BUCKET}.s3.amazonaws.com/${TARGET_FILE}
+
+        echo "Deleting Archive File $ARCHIVE_FILE"
+        rm $ARCHIVE_FILE
+    fi
